@@ -1,5 +1,5 @@
 import 'package:date_format/date_format.dart';
-import 'package:image_picker/image_picker.dart';
+
 
 class HelperService {
   String defaultDate(DateTime date) {
@@ -14,3 +14,5 @@ class HelperService {
     return total;
   }
 }
+
+

@@ -2,6 +2,7 @@ import 'package:excer/pages/expenses/create.dart';
 import 'package:excer/pages/expenses/login.dart';
 import 'package:excer/pages/expenses/update.dart';
 import 'package:excer/services/helper-service.dart';
+import 'package:excer/services/storage-service.dart';
 import 'package:flutter/material.dart';
 import 'package:native_color/native_color.dart';
 
@@ -16,6 +17,24 @@ class MainExpensesPage extends StatefulWidget {
 class _MainExpensesPageState extends State<MainExpensesPage> {
   List listExpenses = [];
   double total = 0;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getData();
+  }
+
+  getData() {
+    StorageService().getData().then((item) {
+      setState(() {
+        listExpenses = item;
+        total = HelperService().countTotal(listExpenses);
+      });
+    }).catchError((onError) {
+      listExpenses = [];
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +66,7 @@ class _MainExpensesPageState extends State<MainExpensesPage> {
           goToCreatePage();
         },
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -89,10 +109,13 @@ class _MainExpensesPageState extends State<MainExpensesPage> {
           return ListTile(
             title: Text(listExpenses[i]['amount']),
             subtitle: Text(listExpenses[i]['date']),
-            trailing: Text(
-              listExpenses[i]['category']['name'],
-              style: TextStyle(
-                backgroundColor: HexColor(listExpenses[i]['category']['hex']),
+            trailing: Container(
+              padding: EdgeInsets.all(10),
+              child: Text(
+                listExpenses[i]['category']['name'],
+                style: TextStyle(
+                  backgroundColor: HexColor(listExpenses[i]['category']['hex']),
+                ),
               ),
             ),
             leading: CircleAvatar(
@@ -123,6 +146,7 @@ class _MainExpensesPageState extends State<MainExpensesPage> {
       setState(() {
         listExpenses.insert(0, result);
         total = HelperService().countTotal(listExpenses);
+        StorageService().saveData(listExpenses);
       });
     }
   }
@@ -141,5 +165,6 @@ class _MainExpensesPageState extends State<MainExpensesPage> {
       }
     }
     total = HelperService().countTotal(listExpenses);
+    StorageService().saveData(listExpenses);
   }
 } // end
